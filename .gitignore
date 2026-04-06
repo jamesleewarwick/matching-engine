@@ -1,0 +1,9 @@
+build/
+build-linux/
+*.exe
+*.bin
+*.obj
+*.o
+*.vcxproj*
+x64/
+.vs/
