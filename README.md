@@ -30,7 +30,7 @@ Prices are represented as integers (fixed-point) to avoid floating-point compari
 
 ### Matching
 
-Price-time priority. An incoming buy walks the ask side from lowest price up; an incoming sell walks the bid side from highest price down. Orders fill against resting liquidity at each level until the incoming quantity is exhausted or no more prices cross. Partial fills are supported — a partially filled incoming order rests on the book with its remaining quantity.
+Price-time priority. An incoming buy walks the ask side from lowest price up; an incoming sell walks the bid side from highest price down. Orders fill against resting liquidity at each level until the incoming quantity is exhausted or no more prices cross. Partial fills are supported, a partially filled incoming order rests on the book with its remaining quantity.
 
 ### MPSC Queue
 
@@ -40,7 +40,7 @@ Slots are cache-line aligned (alignas(64)) to prevent false sharing between adja
 
 ### Memory Pool
 
-Pre-allocated freelist of Order nodes backed by a std::vector. Allocation and deallocation are O(1) pointer swaps. No heap allocation occurs on the hot path after initialisation — all order nodes come from the pool.
+Pre-allocated freelist of Order nodes backed by a std::vector. Allocation and deallocation are O(1) pointer swaps. No heap allocation occurs on the hot path after initialisation and all order nodes come from the pool.
 
 ### Trade Logger
 
@@ -63,9 +63,9 @@ make -j$(nproc)
 
 ## Project Structure
 ```
-core/           Order, PriceLevel, OrderBook, TradeLog — data types
-engine/         MarketMatcher — insert, match, place, cancel logic
-queue/          MPSCQueue — lock-free bounded ring buffer
+core/           Order, PriceLevel, OrderBook, TradeLog - data types
+engine/         MarketMatcher: insert, match, place, cancel logic
+queue/          MPSCQueue: lock-free bounded ring buffer
 memory/         OrderPool (freelist allocator), MMapWriter (mmap trade logger)
 bench/          Benchmark suite with rdtsc cycle-level latency measurement
 ```
