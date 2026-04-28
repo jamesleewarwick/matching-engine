@@ -2,8 +2,10 @@
 
 #include <atomic>
 #include <cstddef>
-#include "Order.h"
+#include <sys/mman.h>
+#include <stdexcept>
 #include <memory>
+#include "Order.h"
 
 constexpr size_t capacity = 65536;
 
@@ -20,8 +22,18 @@ public:
     bool consumer(Order& out);
 
 private:
-    std::unique_ptr<Slot[]> buffer;
+    struct MunmapDeleter {
+        size_t size;
+        void operator()(Slot* ptr) const noexcept {
+            if (ptr && ptr != MAP_FAILED)
+                munmap(ptr, size);
+        }
+    };
 
-    std::atomic<size_t> head{ 0 }; // multi-producer
-    size_t tail{ 0 };              // single-consumer
+    static std::unique_ptr<Slot[], MunmapDeleter> allocateBuffer();
+
+    std::unique_ptr<Slot[], MunmapDeleter> buffer;
+
+    alignas(64) std::atomic<size_t> head{ 0 }; // multi-producer
+    alignas(64) size_t tail { 0 };               // single-consumer
 };
