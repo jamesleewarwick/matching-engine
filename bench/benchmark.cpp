@@ -102,13 +102,16 @@ void benchMultiThreaded(size_t n, int nProducers) {
     auto start = std::chrono::high_resolution_clock::now();
 
     std::thread consumer([&]() {
-        while (!done.load(std::memory_order_relaxed) || engine.process()) {
-            if (!engine.process()) {
-                std::this_thread::yield();
-            } else {
+        while (true) {
+            if (engine.process()) {
                 processed++;
+            } else if (done.load(std::memory_order_relaxed)) {
+                break;
+            } else {
+                std::this_thread::yield();
             }
         }
+        // drain rest of consumer queue
         while (engine.process()) processed++;
     });
 
