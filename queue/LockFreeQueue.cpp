@@ -1,4 +1,5 @@
 #include "LockFreeQueue.h"
+#include <cstring>
 #include <new>
 
 std::unique_ptr<Slot[], MPSCQueue::MunmapDeleter> MPSCQueue::allocateBuffer() {
@@ -16,6 +17,8 @@ std::unique_ptr<Slot[], MPSCQueue::MunmapDeleter> MPSCQueue::allocateBuffer() {
 
     if (ptr == MAP_FAILED)
         throw std::runtime_error("mmap failed for ring buffer");
+
+    memset(ptr, 0, size);
 
     return std::unique_ptr<Slot[], MunmapDeleter>(
         static_cast<Slot*>(ptr), MunmapDeleter{ size });
